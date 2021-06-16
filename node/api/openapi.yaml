@@ -1,0 +1,258 @@
+openapi: 3.0.1
+info:
+  contact:
+    email: you@your-company.com
+  description: This is a simple API
+  license:
+    name: Apache 2.0
+  title: Simple BookStore API
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/iKastle/BookStore/1.0.0
+tags:
+- description: book Details
+  name: book
+- description: user details
+  name: user
+paths:
+  /book/getAllBooks:
+    get:
+      description: |
+        retun all available books in store
+      operationId: getAllBooks
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Book'
+                type: array
+          description: list of Books
+        "400":
+          content: {}
+          description: bad input parameter
+      summary: get all books from store
+      tags:
+      - book
+      x-eov-operation-handler: controllers/BookController
+  /book/addNewBooks:
+    post:
+      operationId: addNewbook
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        "200":
+          content: {}
+          description: OK
+        "400":
+          content: {}
+          description: invalid input
+      summary: add New Book in Store
+      tags:
+      - book
+      x-codegen-request-body-name: book
+      x-eov-operation-handler: controllers/BookController
+  /book/{bookId}/uploadImage:
+    put:
+      description: upload photo for book
+      operationId: uploadImage
+      parameters:
+      - explode: false
+        in: path
+        name: bookId
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  format: binary
+                  type: string
+              required:
+              - file
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Book'
+                type: array
+          description: OK
+        "400":
+          content: {}
+          description: invalid input
+        "404":
+          content: {}
+          description: no Data found
+      summary: upload Photo
+      tags:
+      - book
+      x-eov-operation-handler: controllers/BookController
+  /book/{bookId}/deleteBook:
+    delete:
+      operationId: deleteBook
+      parameters:
+      - explode: false
+        in: path
+        name: bookId
+        required: true
+        schema:
+          format: int64
+          type: integer
+        style: simple
+      responses:
+        "200":
+          content: {}
+          description: OK
+        "400":
+          content: {}
+          description: invalid input
+        "404":
+          content: {}
+          description: bookId not Found
+      summary: delete book from store by bookId
+      tags:
+      - book
+      x-eov-operation-handler: controllers/BookController
+  /user/login:
+    get:
+      description: check user is exist or not
+      operationId: showUserLogin
+      parameters:
+      - description: user name for login
+        explode: true
+        in: query
+        name: username
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: password for login
+        explode: true
+        in: query
+        name: password
+        required: true
+        schema:
+          format: password
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+          description: successful login
+        "400":
+          content: {}
+          description: invalid input
+        "404":
+          content: {}
+          description: not Found
+      summary: check user is exist or not
+      tags:
+      - user
+      x-eov-operation-handler: controllers/UserController
+  /user/{username}:
+    get:
+      operationId: getUserByName
+      parameters:
+      - description: The name that needs to be fetched. Use user1 for testing.
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: successful operation
+        "400":
+          content: {}
+          description: Invalid username supplied
+        "404":
+          content: {}
+          description: User not found
+      summary: Get user by user name
+      tags:
+      - user
+      x-eov-operation-handler: controllers/UserController
+  /user/logout:
+    get:
+      operationId: logoutUser
+      responses:
+        default:
+          content: {}
+          description: successful operation
+      summary: Logs out current logged in user session
+      tags:
+      - user
+      x-eov-operation-handler: controllers/UserController
+components:
+  schemas:
+    Book:
+      example:
+        photoURL: photoURL
+        authorName: Widget Adapter
+        publishDate: 2000-01-23T04:56:07.000+00:00
+        bookName: Widget Adapter
+        bookId: 0
+      properties:
+        bookId:
+          format: int64
+          type: integer
+        bookName:
+          example: Widget Adapter
+          type: string
+        authorName:
+          example: Widget Adapter
+          type: string
+        publishDate:
+          format: date-time
+          type: string
+        photoURL:
+          type: string
+      required:
+      - authorName
+      - bookId
+      - bookName
+      - photoURL
+      - publishDate
+      type: object
+    User:
+      example:
+        password: password
+        username: username
+      properties:
+        username:
+          type: string
+        password:
+          format: password
+          type: string
+      required:
+      - password
+      - username
+      type: object
